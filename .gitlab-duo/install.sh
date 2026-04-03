@@ -141,6 +141,16 @@ bash "${SCRIPT_DIR}/detect-capabilities.sh" --non-interactive
 echo -e "${GREEN}✓${NC} Capabilities detected and saved"
 
 echo ""
+echo "Validating installation..."
+
+# Run validation script
+SUPERPOWERS_SKILLS_DIR="${SKILLS_DIR}" node "${SCRIPT_DIR}/validate-installation.js"
+
+echo -e "${GREEN}✓${NC} Installation validated"
+echo ""
+echo "Compatibility report: ${SCRIPT_DIR}/compatibility-report.md"
+
+echo ""
 echo "Testing MCP server..."
 
 # Test that the server starts without errors
@@ -156,14 +166,18 @@ echo "Next steps:"
 echo "1. Start GitLab Duo CLI:"
 echo "   duo"
 echo ""
-echo "2. Verify installation by asking:"
-echo '   "What MCP resources are available?"'
+echo "2. Initialize Superpowers:"
+echo '   "Use initialize-superpowers prompt"'
 echo ""
-echo "3. Use a skill:"
+echo "3. Try a quick start:"
+echo '   "Use quick-start-tdd prompt with feature='"'"'calculator'"'"'"'
+echo ""
+echo "4. Or use any skill:"
 echo '   "Use the brainstorming skill to help me design a feature"'
 echo ""
 echo "Configuration file: ${MCP_CONFIG_FILE}"
 echo "Skills directory: ${SKILLS_DIR}"
+echo "Compatibility report: ${SCRIPT_DIR}/compatibility-report.md"
 echo ""
 echo "For more information, see: ${SCRIPT_DIR}/INSTALL.md"
 echo ""

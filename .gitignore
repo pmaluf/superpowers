@@ -6,3 +6,4 @@ node_modules/
 inspo
 triage/
 .gitlab-duo/capabilities.json
+.gitlab-duo/compatibility-report.md
