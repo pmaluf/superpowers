@@ -4,6 +4,10 @@ import { createToolAdapter } from '../src/tool-adapter.js';
 import { generateWelcome } from '../src/resources/welcome.js';
 import { generateBootstrap } from '../src/resources/bootstrap.js';
 import { generateCapabilities } from '../src/resources/capabilities.js';
+import { InstallationValidator } from '../src/diagnostics/validator.js';
+import { HealthChecker } from '../src/diagnostics/health-checker.js';
+import { generateDiagnostics } from '../src/resources/diagnostics.js';
+import { listQuickStartPrompts, getQuickStartPrompt } from '../src/prompts/quick-starts.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -84,6 +88,46 @@ describe('MCP Server Integration', () => {
       
       expect(result.content[0].text).toContain('read_file');
       expect(result.content[0].text).toContain('test.js');
+    });
+  });
+
+  describe('Diagnostics Integration', () => {
+    it('should generate diagnostics resource', async () => {
+      const detector = new CapabilitiesDetector(path.join(__dirname, 'fixtures', 'capabilities.json'));
+      await detector.load();
+      
+      const mockValidator = {
+        validate: async () => ({
+          overall: 'healthy',
+          checks: {},
+          warnings: [],
+          recommendations: ['Test']
+        })
+      };
+      
+      const mockSkills = [{ name: 'test' }];
+      const healthChecker = new HealthChecker(mockValidator, detector, mockSkills);
+      
+      const content = await generateDiagnostics(healthChecker);
+      
+      expect(content).toContain('Superpowers Diagnostics');
+      expect(content).toContain('System Health');
+    });
+  });
+
+  describe('Quick Starts Integration', () => {
+    it('should list quick start prompts', () => {
+      const prompts = listQuickStartPrompts();
+      
+      expect(prompts.length).toBe(6);
+      expect(prompts[0].name).toContain('quick-start');
+    });
+
+    it('should generate quick start content', () => {
+      const content = getQuickStartPrompt('quick-start-tdd', { feature: 'test' });
+      
+      expect(content).toContain('test');
+      expect(content).toContain('Test-Driven Development');
     });
   });
 });
