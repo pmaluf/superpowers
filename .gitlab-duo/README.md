@@ -17,9 +17,30 @@ This will:
 
 - **`mcp-server/`** - MCP server implementation
   - `src/index.js` - Main server code
+  - `src/capabilities-detector.js` - Capability detection module
+  - `src/tool-adapter.js` - Tool name mapping
+  - `src/resources/` - Resource generators (bootstrap, welcome, capabilities)
   - `package.json` - Dependencies
 - **`install.sh`** - Automated installation script
+- **`detect-capabilities.sh`** - Capability detection script
 - **`INSTALL.md`** - Detailed installation and usage guide
+
+## New in Phase 1 (2026-04-03)
+
+**Auto-Bootstrap:**
+- `initialize-superpowers` prompt appears first in prompts list
+- `superpowers://welcome` resource for quick start
+- Enhanced bootstrap with capabilities summary
+
+**Capability Detection:**
+- `detect-capabilities.sh` script detects GitLab Duo features
+- `superpowers://capabilities` resource shows what's available
+- Automatic fallback to `executing-plans` when subagents not supported
+
+**Tool Adapter:**
+- MCP tools (`Read`, `Write`, `Edit`, `Bash`) for transparent mapping
+- Skills work without modification
+- Clear instructions for manual tool mapping
 
 ## Documentation
 

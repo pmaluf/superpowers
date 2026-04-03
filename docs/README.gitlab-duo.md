@@ -28,6 +28,8 @@ The integration uses an MCP server that:
 2. **Exposes them as MCP resources** that GitLab Duo can read
 3. **Provides a bootstrap resource** with the `using-superpowers` skill and tool mappings
 4. **Offers skills as prompts** for easy activation
+5. **Detects capabilities** automatically during installation
+6. **Provides tool adapters** for transparent tool name mapping
 
 ### Architecture
 
@@ -37,10 +39,60 @@ GitLab Duo CLI
 ~/.gitlab/duo/mcp.json
     ↓ (starts MCP server)
 .gitlab-duo/mcp-server/src/index.js
-    ↓ (loads skills)
-skills/*/SKILL.md
+    ↓ (loads skills + capabilities)
+skills/*/SKILL.md + capabilities.json
     ↓ (exposes as)
-MCP Resources & Prompts
+MCP Resources & Prompts & Tools
+```
+
+## Phase 1 Improvements (2026-04-03)
+
+### Auto-Bootstrap
+
+The integration now makes initialization obvious and easy:
+
+1. **Initialize prompt** - `initialize-superpowers` appears first in prompts list with 🚀 emoji
+2. **Welcome resource** - Quick start guide at `superpowers://welcome`
+3. **Enhanced bootstrap** - Includes capabilities summary and next steps
+
+**Usage:**
+```bash
+duo
+# Then ask: "What prompts are available?"
+# Use: "Use initialize-superpowers prompt"
+```
+
+### Capability Detection
+
+Automatically detects what GitLab Duo CLI supports:
+
+1. **Detection script** - Runs during installation: `bash .gitlab-duo/detect-capabilities.sh`
+2. **Capabilities resource** - View at `superpowers://capabilities`
+3. **Smart fallback** - Uses `executing-plans` when subagents not available
+
+**Check capabilities:**
+```
+Read superpowers://capabilities
+```
+
+**Re-detect manually:**
+```bash
+bash .gitlab-duo/detect-capabilities.sh
+```
+
+### Tool Adapter
+
+Transparent tool name translation:
+
+1. **MCP Tools** - `Read`, `Write`, `Edit`, `Bash` work directly in skills
+2. **Manual mapping** - Clear instructions for other tools in bootstrap
+3. **No modification needed** - Skills work as-is
+
+**Example:**
+```
+# Skill says: "Use Read tool to check package.json"
+# You can use: Read tool (MCP) or read_file (direct)
+# Both work - the MCP tool translates automatically
 ```
 
 ## Usage
