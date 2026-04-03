@@ -1,0 +1,20 @@
+{
+  "detected_at": "2026-04-03T10:00:00Z",
+  "gitlab_duo_version": "8.82.0",
+  "tools": {
+    "read_file": true,
+    "edit_file": true,
+    "create_file_with_contents": true,
+    "run_command": true,
+    "grep": true,
+    "find_files": true,
+    "gitlab_documentation_search": true,
+    "web_search": false
+  },
+  "subagents": {
+    "supported": false,
+    "tested_method": "task_dispatch",
+    "fallback": "executing-plans",
+    "notes": "No subagent API detected"
+  }
+}
