@@ -136,6 +136,11 @@ EOF
 echo -e "${GREEN}✓${NC} GitLab Duo configuration updated"
 
 echo ""
+echo "Detecting GitLab Duo capabilities..."
+bash "${SCRIPT_DIR}/detect-capabilities.sh" --non-interactive
+echo -e "${GREEN}✓${NC} Capabilities detected and saved"
+
+echo ""
 echo "Testing MCP server..."
 
 # Test that the server starts without errors
