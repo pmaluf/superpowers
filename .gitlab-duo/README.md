@@ -1,0 +1,80 @@
+# Superpowers for GitLab Duo CLI
+
+This directory contains the MCP (Model Context Protocol) server integration for GitLab Duo CLI.
+
+## Quick Start
+
+```bash
+bash install.sh
+```
+
+This will:
+1. Install MCP server dependencies
+2. Configure `~/.gitlab/duo/mcp.json`
+3. Make Superpowers skills available in GitLab Duo
+
+## What's Inside
+
+- **`mcp-server/`** - MCP server implementation
+  - `src/index.js` - Main server code
+  - `package.json` - Dependencies
+- **`install.sh`** - Automated installation script
+- **`INSTALL.md`** - Detailed installation and usage guide
+
+## Documentation
+
+- **Installation Guide:** [INSTALL.md](./INSTALL.md)
+- **Full Documentation:** [../docs/README.gitlab-duo.md](../docs/README.gitlab-duo.md)
+- **Tool Mapping:** [../skills/using-superpowers/references/gitlab-duo-tools.md](../skills/using-superpowers/references/gitlab-duo-tools.md)
+
+## How It Works
+
+```
+GitLab Duo CLI
+    ↓
+~/.gitlab/duo/mcp.json (configuration)
+    ↓
+mcp-server/src/index.js (MCP server)
+    ↓
+../skills/*/SKILL.md (skills)
+    ↓
+MCP Resources & Prompts
+```
+
+The MCP server:
+1. Loads all skills from `../skills/`
+2. Exposes them as MCP resources (e.g., `superpowers://skill/brainstorming`)
+3. Provides a bootstrap resource with tool mappings
+4. Offers skills as prompts for easy activation
+
+## Usage
+
+After installation, start GitLab Duo:
+
+```bash
+duo
+```
+
+Then ask:
+```
+What Superpowers skills are available?
+```
+
+Or use a skill directly:
+```
+Use the brainstorming skill to help me design a feature
+```
+
+## Requirements
+
+- Node.js 18+
+- GitLab Duo CLI installed
+- Superpowers repository cloned
+
+## Troubleshooting
+
+See [INSTALL.md](./INSTALL.md#troubleshooting) for common issues and solutions.
+
+## Contributing
+
+Improvements to the GitLab Duo integration are welcome! See [../AGENTS.md](../AGENTS.md) for contribution guidelines.

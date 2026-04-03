@@ -1,0 +1,24 @@
+{
+  "name": "superpowers-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Superpowers skills in GitLab Duo CLI",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "gitlab-duo",
+    "superpowers",
+    "skills"
+  ],
+  "author": "Superpowers Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

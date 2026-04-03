@@ -89,6 +89,16 @@ copilot plugin marketplace add obra/superpowers-marketplace
 copilot plugin install superpowers@superpowers-marketplace
 ```
 
+### GitLab Duo CLI
+
+From the Superpowers repository root:
+
+```bash
+bash .gitlab-duo/install.sh
+```
+
+**Detailed docs:** [docs/README.gitlab-duo.md](docs/README.gitlab-duo.md)
+
 ### Gemini CLI
 
 ```bash
