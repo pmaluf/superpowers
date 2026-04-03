@@ -25,6 +25,10 @@ import { createToolAdapter } from './tool-adapter.js';
 import { generateWelcome } from './resources/welcome.js';
 import { generateBootstrap } from './resources/bootstrap.js';
 import { generateCapabilities } from './resources/capabilities.js';
+import { InstallationValidator } from './diagnostics/validator.js';
+import { HealthChecker } from './diagnostics/health-checker.js';
+import { generateDiagnostics } from './resources/diagnostics.js';
+import { listQuickStartPrompts, getQuickStartPrompt, getAllQuickStarts } from './prompts/quick-starts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -127,6 +131,10 @@ async function createServer() {
   // Initialize tool adapter
   const toolAdapter = createToolAdapter();
 
+  // Initialize diagnostics
+  const validator = new InstallationValidator(capabilitiesDetector, SKILLS_DIR);
+  const healthChecker = new HealthChecker(validator, capabilitiesDetector, skills);
+
   // List available resources (skills)
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
     const resources = [
@@ -149,6 +157,13 @@ async function createServer() {
         uri: 'superpowers://capabilities',
         name: 'GitLab Duo Capabilities',
         description: 'Detected capabilities and tool availability',
+        mimeType: 'text/markdown',
+      },
+      // Diagnostics fourth
+      {
+        uri: 'superpowers://diagnostics',
+        name: 'Superpowers Diagnostics',
+        description: 'System health check and troubleshooting',
         mimeType: 'text/markdown',
       },
       // Then skills
@@ -185,6 +200,17 @@ async function createServer() {
           uri,
           mimeType: 'text/markdown',
           text: generateCapabilities(capabilitiesDetector),
+        }],
+      };
+    }
+
+    // Handle diagnostics resource
+    if (uri === 'superpowers://diagnostics') {
+      return {
+        contents: [{
+          uri,
+          mimeType: 'text/markdown',
+          text: await generateDiagnostics(healthChecker),
         }],
       };
     }
@@ -236,6 +262,8 @@ async function createServer() {
         description: '🚀 Initialize Superpowers (start here!)',
         arguments: []
       },
+      // Quick start prompts SECOND
+      ...listQuickStartPrompts(),
       // Then skill prompts
       ...skills.map(skill => ({
         name: skill.name,
@@ -267,6 +295,24 @@ async function createServer() {
           content: {
             type: 'text',
             text: `${bootstrapContent}\n\n---\n\n${welcomeContent}`,
+          },
+        }],
+      };
+    }
+
+    // Handle quick-start prompts
+    const quickStarts = getAllQuickStarts();
+    const quickStart = quickStarts.find(qs => qs.name === promptName);
+
+    if (quickStart) {
+      const content = getQuickStartPrompt(promptName, request.params.arguments || {});
+      
+      return {
+        messages: [{
+          role: 'user',
+          content: {
+            type: 'text',
+            text: content,
           },
         }],
       };
