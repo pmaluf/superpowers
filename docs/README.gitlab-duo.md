@@ -95,6 +95,71 @@ Transparent tool name translation:
 # Both work - the MCP tool translates automatically
 ```
 
+## Phase 2 Improvements (2026-04-03)
+
+### Post-Install Validation
+
+Installation now validates compatibility automatically:
+
+**During installation:**
+```bash
+bash .gitlab-duo/install.sh
+# ...
+✓ Validating installation...
+✓ 14 skills loaded
+✓ 7/8 tools available
+✓ Installation validated
+
+Compatibility report: .gitlab-duo/compatibility-report.md
+```
+
+**Review report:**
+```bash
+cat .gitlab-duo/compatibility-report.md
+```
+
+### Health Check Diagnostics
+
+Quick system health check for troubleshooting:
+
+**Check health:**
+```
+Read superpowers://diagnostics
+```
+
+**Shows:**
+- System status (✅ Healthy / ⚠️ Warnings / ❌ Issues)
+- Loaded skills (count and list)
+- Available tools (MCP + GitLab Duo)
+- Issues and recommendations
+- Troubleshooting steps
+
+### Interactive Quick Starts
+
+Ready-to-use prompts for common workflows:
+
+**Development workflows:**
+- `quick-start-tdd` - Test-Driven Development
+- `quick-start-debug` - Systematic debugging
+- `quick-start-review` - Code review preparation
+
+**GitLab workflows:**
+- `quick-start-issue` - Work on GitLab issue
+- `quick-start-mr` - Review merge request
+- `quick-start-pipeline` - Debug failed pipeline
+
+**Usage:**
+```
+# List all prompts
+What prompts are available?
+
+# Use a quick start
+Use quick-start-tdd prompt with feature="user authentication"
+
+# Or with GitLab URL
+Use quick-start-issue prompt with issue_url="https://gitlab.com/group/project/-/issues/42"
+```
+
 ## Usage
 
 ### Starting a Session

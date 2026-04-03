@@ -42,6 +42,24 @@ This will:
 - Skills work without modification
 - Clear instructions for manual tool mapping
 
+## New in Phase 2 (2026-04-03)
+
+**Post-Install Validation:**
+- Automatic validation after installation
+- `compatibility-report.md` generated with detailed status
+- Clear warnings and recommendations
+
+**Health Check Diagnostics:**
+- `superpowers://diagnostics` resource for troubleshooting
+- Shows system status, loaded skills, available tools
+- Includes troubleshooting steps and quick reference
+
+**Interactive Quick Starts:**
+- 6 quick start prompts for common workflows
+- Development: TDD, debugging, code review
+- GitLab: issues, merge requests, pipelines
+- Prompts appear in list with emojis for easy discovery
+
 ## Documentation
 
 - **Installation Guide:** [INSTALL.md](./INSTALL.md)
