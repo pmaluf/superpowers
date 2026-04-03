@@ -99,7 +99,7 @@ describe('Bootstrap Resource', () => {
     
     const content = generateBootstrap(mockSkill, capsWithSubagents);
     
-    expect(content).toContain('Subagents: Supported ✓');
+    expect(content).toContain('**Subagents:** Supported ✓');
   });
 
   it('should show fallback when no subagents', () => {
