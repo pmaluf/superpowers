@@ -15,10 +15,16 @@ import {
   ListPromptsRequestSchema,
   ReadResourceRequestSchema,
   GetPromptRequestSchema,
+  ListToolsRequestSchema
 } from '@modelcontextprotocol/sdk/types.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { CapabilitiesDetector } from './capabilities-detector.js';
+import { createToolAdapter } from './tool-adapter.js';
+import { generateWelcome } from './resources/welcome.js';
+import { generateBootstrap } from './resources/bootstrap.js';
+import { generateCapabilities } from './resources/capabilities.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -104,6 +110,7 @@ async function createServer() {
       capabilities: {
         resources: {},
         prompts: {},
+        tools: {},
       },
     }
   );
@@ -112,22 +119,46 @@ async function createServer() {
   const skills = await loadSkills();
   console.error(`Loaded ${skills.length} skills from ${SKILLS_DIR}`);
 
+  // Load capabilities
+  const capabilitiesDetector = new CapabilitiesDetector();
+  await capabilitiesDetector.load();
+  console.error(`Capabilities: ${capabilitiesDetector.getSummary()}`);
+
+  // Initialize tool adapter
+  const toolAdapter = createToolAdapter();
+
   // List available resources (skills)
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
-    const resources = skills.map(skill => ({
-      uri: `superpowers://skill/${skill.name}`,
-      name: `Skill: ${skill.name}`,
-      description: skill.description,
-      mimeType: 'text/markdown',
-    }));
-
-    // Add special bootstrap resource
-    resources.unshift({
-      uri: 'superpowers://bootstrap',
-      name: 'Superpowers Bootstrap',
-      description: 'Initial context and instructions for using Superpowers skills',
-      mimeType: 'text/markdown',
-    });
+    const resources = [
+      // Bootstrap first
+      {
+        uri: 'superpowers://bootstrap',
+        name: 'Superpowers Bootstrap',
+        description: 'Initial context and instructions for using Superpowers skills',
+        mimeType: 'text/markdown',
+      },
+      // Welcome second
+      {
+        uri: 'superpowers://welcome',
+        name: 'Welcome to Superpowers',
+        description: 'Quick start guide and overview',
+        mimeType: 'text/markdown',
+      },
+      // Capabilities third
+      {
+        uri: 'superpowers://capabilities',
+        name: 'GitLab Duo Capabilities',
+        description: 'Detected capabilities and tool availability',
+        mimeType: 'text/markdown',
+      },
+      // Then skills
+      ...skills.map(skill => ({
+        uri: `superpowers://skill/${skill.name}`,
+        name: `Skill: ${skill.name}`,
+        description: skill.description,
+        mimeType: 'text/markdown',
+      }))
+    ];
 
     return { resources };
   });
@@ -136,6 +167,28 @@ async function createServer() {
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     const uri = request.params.uri;
 
+    // Handle welcome resource
+    if (uri === 'superpowers://welcome') {
+      return {
+        contents: [{
+          uri,
+          mimeType: 'text/markdown',
+          text: generateWelcome(),
+        }],
+      };
+    }
+
+    // Handle capabilities resource
+    if (uri === 'superpowers://capabilities') {
+      return {
+        contents: [{
+          uri,
+          mimeType: 'text/markdown',
+          text: generateCapabilities(capabilitiesDetector),
+        }],
+      };
+    }
+
     // Handle bootstrap resource
     if (uri === 'superpowers://bootstrap') {
       const usingSuperpowersSkill = skills.find(s => s.name === 'using-superpowers');
@@ -143,46 +196,12 @@ async function createServer() {
         throw new Error('using-superpowers skill not found');
       }
 
-      const toolMapping = `
-## Tool Mapping for GitLab Duo CLI
-
-When skills reference Claude Code tools, use GitLab Duo equivalents:
-
-| Skill Reference | GitLab Duo Equivalent |
-|----------------|----------------------|
-| \`Skill\` tool | MCP Resource read (this system) |
-| \`Read\` (file reading) | \`read_file\` |
-| \`Write\` (file creation) | \`create_file_with_contents\` |
-| \`Edit\` (file editing) | \`edit_file\` |
-| \`Bash\` (run commands) | \`run_command\` |
-| \`Grep\` (search file content) | \`grep\` |
-| \`Glob\` (search files by name) | \`find_files\` |
-| \`TodoWrite\` (task tracking) | Native GitLab Duo task tracking |
-| \`Task\` tool (dispatch subagent) | Check if GitLab Duo supports subagents |
-| \`WebSearch\` | \`gitlab_documentation_search\` or web tools |
-| \`WebFetch\` | Web fetch tools if available |
-
-**Note:** Some skills may reference tools not available in GitLab Duo. Adapt the workflow using available tools.
-`;
-
-      const bootstrapContent = `<EXTREMELY_IMPORTANT>
-You have superpowers.
-
-**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use MCP resources:**
-
-${usingSuperpowersSkill.content}
-
-${toolMapping}
-</EXTREMELY_IMPORTANT>`;
-
       return {
-        contents: [
-          {
-            uri,
-            mimeType: 'text/markdown',
-            text: bootstrapContent,
-          },
-        ],
+        contents: [{
+          uri,
+          mimeType: 'text/markdown',
+          text: generateBootstrap(usingSuperpowersSkill, capabilitiesDetector),
+        }],
       };
     }
 
@@ -200,23 +219,30 @@ ${toolMapping}
     }
 
     return {
-      contents: [
-        {
-          uri,
-          mimeType: 'text/markdown',
-          text: skill.fullContent,
-        },
-      ],
+      contents: [{
+        uri,
+        mimeType: 'text/markdown',
+        text: skill.fullContent,
+      }],
     };
   });
 
   // List available prompts
   server.setRequestHandler(ListPromptsRequestSchema, async () => {
-    const prompts = skills.map(skill => ({
-      name: skill.name,
-      description: skill.description,
-      arguments: [],
-    }));
+    const prompts = [
+      // Initialize prompt FIRST
+      {
+        name: 'initialize-superpowers',
+        description: '🚀 Initialize Superpowers (start here!)',
+        arguments: []
+      },
+      // Then skill prompts
+      ...skills.map(skill => ({
+        name: skill.name,
+        description: skill.description,
+        arguments: [],
+      }))
+    ];
 
     return { prompts };
   });
@@ -224,23 +250,54 @@ ${toolMapping}
   // Get a specific prompt
   server.setRequestHandler(GetPromptRequestSchema, async (request) => {
     const promptName = request.params.name;
-    const skill = skills.find(s => s.name === promptName);
     
+    // Handle initialize-superpowers prompt
+    if (promptName === 'initialize-superpowers') {
+      const usingSuperpowersSkill = skills.find(s => s.name === 'using-superpowers');
+      if (!usingSuperpowersSkill) {
+        throw new Error('using-superpowers skill not found');
+      }
+
+      const bootstrapContent = generateBootstrap(usingSuperpowersSkill, capabilitiesDetector);
+      const welcomeContent = generateWelcome();
+
+      return {
+        messages: [{
+          role: 'user',
+          content: {
+            type: 'text',
+            text: `${bootstrapContent}\n\n---\n\n${welcomeContent}`,
+          },
+        }],
+      };
+    }
+
+    // Handle skill prompts
+    const skill = skills.find(s => s.name === promptName);
     if (!skill) {
       throw new Error(`Prompt not found: ${promptName}`);
     }
 
     return {
-      messages: [
-        {
-          role: 'user',
-          content: {
-            type: 'text',
-            text: `Please use the ${skill.name} skill to guide this work.\n\nSkill content:\n\n${skill.fullContent}`,
-          },
+      messages: [{
+        role: 'user',
+        content: {
+          type: 'text',
+          text: `Please use the ${skill.name} skill to guide this work.\n\nSkill content:\n\n${skill.fullContent}`,
         },
-      ],
+      }],
     };
+  });
+
+  // List tools handler
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    return { tools: toolAdapter.listTools() };
+  });
+
+  // Call tool handler
+  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: args } = request.params;
+    return toolAdapter.callTool(name, args);
   });
 
   return server;
