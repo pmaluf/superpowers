@@ -204,25 +204,17 @@ describe('Universal Installer', () => {
   describe('configureGitLabDuo', () => {
     let testHome;
     let originalHomedir;
-    let originalCwd;
     
     beforeEach(async () => {
       testHome = path.join(os.tmpdir(), 'test-home-' + Date.now());
       await fs.mkdir(testHome, { recursive: true });
       originalHomedir = os.homedir;
-      originalCwd = process.cwd();
-      
-      // Create test project directory
-      const testProject = path.join(testHome, 'project');
-      await fs.mkdir(testProject, { recursive: true });
-      process.chdir(testProject);
       
       // Mock homedir
       os.homedir = () => testHome;
     });
     
     afterEach(async () => {
-      process.chdir(originalCwd);
       os.homedir = originalHomedir;
       await fs.rm(testHome, { recursive: true, force: true });
     });
@@ -264,43 +256,39 @@ describe('Universal Installer', () => {
 
   describe('updateGitignore', () => {
     let testDir;
-    let originalCwd;
     
     beforeEach(async () => {
       testDir = path.join(os.tmpdir(), 'test-gitignore-' + Date.now());
       await fs.mkdir(testDir, { recursive: true });
-      originalCwd = process.cwd();
-      process.chdir(testDir);
     });
     
     afterEach(async () => {
-      process.chdir(originalCwd);
       await fs.rm(testDir, { recursive: true, force: true });
     });
 
     it('should create .gitignore if missing', async () => {
-      await updateGitignore();
+      await updateGitignore(testDir);
       
-      const content = await fs.readFile('./.gitignore', 'utf-8');
+      const content = await fs.readFile(path.join(testDir, '.gitignore'), 'utf-8');
       expect(content).toContain('# Superpowers for GitLab Duo');
       expect(content).toContain('.gitlab-duo/capabilities.json');
     });
     
     it('should append to existing .gitignore', async () => {
-      await fs.writeFile('./.gitignore', 'node_modules/\n');
+      await fs.writeFile(path.join(testDir, '.gitignore'), 'node_modules/\n');
       
-      await updateGitignore();
+      await updateGitignore(testDir);
       
-      const content = await fs.readFile('./.gitignore', 'utf-8');
+      const content = await fs.readFile(path.join(testDir, '.gitignore'), 'utf-8');
       expect(content).toContain('node_modules/');
       expect(content).toContain('# Superpowers for GitLab Duo');
     });
     
     it('should not duplicate entries', async () => {
-      await updateGitignore();
-      await updateGitignore(); // Run twice
+      await updateGitignore(testDir);
+      await updateGitignore(testDir); // Run twice
       
-      const content = await fs.readFile('./.gitignore', 'utf-8');
+      const content = await fs.readFile(path.join(testDir, '.gitignore'), 'utf-8');
       const matches = content.match(/# Superpowers for GitLab Duo/g);
       expect(matches.length).toBe(1);
     });
@@ -308,25 +296,21 @@ describe('Universal Installer', () => {
 
   describe('createDefaultCapabilities', () => {
     let testDir;
-    let originalCwd;
     
     beforeEach(async () => {
       testDir = path.join(os.tmpdir(), 'test-caps-' + Date.now());
       await fs.mkdir(testDir, { recursive: true });
-      originalCwd = process.cwd();
-      process.chdir(testDir);
     });
     
     afterEach(async () => {
-      process.chdir(originalCwd);
       await fs.rm(testDir, { recursive: true, force: true });
     });
 
     it('should create default capabilities.json', async () => {
-      await fs.mkdir('./.gitlab-duo', { recursive: true });
-      await createDefaultCapabilities();
+      await fs.mkdir(path.join(testDir, '.gitlab-duo'), { recursive: true });
+      await createDefaultCapabilities(testDir);
       
-      const content = await fs.readFile('./.gitlab-duo/capabilities.json', 'utf-8');
+      const content = await fs.readFile(path.join(testDir, '.gitlab-duo/capabilities.json'), 'utf-8');
       const capabilities = JSON.parse(content);
       
       expect(capabilities).toHaveProperty('detected_at');
@@ -335,10 +319,10 @@ describe('Universal Installer', () => {
     });
     
     it('should mark as default detection method', async () => {
-      await fs.mkdir('./.gitlab-duo', { recursive: true });
-      await createDefaultCapabilities();
+      await fs.mkdir(path.join(testDir, '.gitlab-duo'), { recursive: true });
+      await createDefaultCapabilities(testDir);
       
-      const content = await fs.readFile('./.gitlab-duo/capabilities.json', 'utf-8');
+      const content = await fs.readFile(path.join(testDir, '.gitlab-duo/capabilities.json'), 'utf-8');
       const capabilities = JSON.parse(content);
       
       expect(capabilities.subagents.tested_method).toBe('default');
