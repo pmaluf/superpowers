@@ -6,9 +6,51 @@ Enable Superpowers skills in GitLab Duo CLI via MCP (Model Context Protocol).
 
 - GitLab Duo CLI installed (`duo --version` should work)
 - Node.js 18+ installed
-- Git
+- Internet connection (for initial download)
 
-## Quick Installation
+---
+
+## Quick Install (Recommended)
+
+Install Superpowers in any project without cloning the repository.
+
+### Unix (Linux/macOS)
+
+```bash
+cd your-project
+curl -sSL https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+```
+
+### Windows (PowerShell)
+
+```powershell
+cd your-project
+irm https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+```
+
+### What Gets Installed
+
+- **Skills:** `./skills/` (14 skills, editable, versionable)
+- **MCP Server:** `./.gitlab-duo/mcp-server/`
+- **Scripts:** `./.gitlab-duo/detect-capabilities.sh`, `validate-installation.js`
+- **Config:** `~/.gitlab/duo/mcp.json` (updated)
+- **Reports:** `./.gitlab-duo/compatibility-report.md`
+
+### Customization
+
+After installation, you can:
+- Edit skills in `./skills/` (changes are yours)
+- Add new skills to `./skills/`
+- Remove unused skills
+- Commit skills to your project's git
+
+---
+
+## Local Development Installation
+
+For Superpowers contributors or local development:
+
+### Quick Installation
 
 Run this command from the Superpowers repository root:
 
@@ -19,7 +61,10 @@ bash .gitlab-duo/install.sh
 This will:
 1. Install MCP server dependencies
 2. Update your `~/.gitlab/duo/mcp.json` configuration
-3. Verify the installation
+3. Detect capabilities
+4. Validate the installation
+
+---
 
 ## Manual Installation
 

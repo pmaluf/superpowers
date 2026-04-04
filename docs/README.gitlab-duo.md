@@ -8,9 +8,31 @@ Superpowers integrates with GitLab Duo CLI through the Model Context Protocol (M
 
 ## Installation
 
-### Quick Install
+### Quick Install (Recommended)
 
-From the Superpowers repository root:
+Install Superpowers in any project without cloning the repository.
+
+**Unix (Linux/macOS):**
+```bash
+cd your-project
+curl -sSL https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+```
+
+**Windows (PowerShell):**
+```powershell
+cd your-project
+irm https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+```
+
+**What gets installed:**
+- Skills in `./skills/` (editable, versionable)
+- MCP server in `./.gitlab-duo/`
+- GitLab Duo configured automatically
+- Works on Windows, macOS, Linux
+
+### Local Development Install
+
+For Superpowers contributors, from the repository root:
 
 ```bash
 bash .gitlab-duo/install.sh
@@ -18,7 +40,7 @@ bash .gitlab-duo/install.sh
 
 ### Manual Installation
 
-See [.gitlab-duo/INSTALL.md](./.INSTALL.md) for detailed manual installation steps.
+See [.gitlab-duo/INSTALL.md](../.gitlab-duo/INSTALL.md) for detailed manual installation steps.
 
 ## How It Works
 
@@ -159,6 +181,62 @@ Use quick-start-tdd prompt with feature="user authentication"
 # Or with GitLab URL
 Use quick-start-issue prompt with issue_url="https://gitlab.com/group/project/-/issues/42"
 ```
+
+## Phase 3 Improvements (2026-04-03)
+
+### Universal Installation
+
+Install Superpowers in any project without cloning the repository.
+
+**One command (Unix):**
+```bash
+curl -sSL https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+```
+
+**One command (Windows):**
+```powershell
+irm https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+```
+
+**What it does:**
+1. Downloads skills from GitHub → `./skills/`
+2. Downloads MCP server → `./.gitlab-duo/mcp-server/`
+3. Installs dependencies
+4. Detects capabilities
+5. Validates installation
+6. Configures GitLab Duo
+7. Updates `.gitignore`
+
+**Result:**
+- Skills in your project (editable, versionable)
+- Ready to use immediately
+- Works on Windows, macOS, Linux
+
+### Project Structure
+
+After installation:
+```
+your-project/
+├── skills/                    # Superpowers skills (customize as needed)
+│   ├── brainstorming/
+│   ├── test-driven-development/
+│   └── ... (14 skills)
+├── .gitlab-duo/              # Infrastructure (auto-managed)
+│   ├── mcp-server/
+│   ├── capabilities.json
+│   └── compatibility-report.md
+└── .gitignore                # Updated automatically
+```
+
+### Customizing Skills
+
+Skills are in your project - you can:
+- Edit existing skills in `./skills/`
+- Add new skills
+- Remove unused skills
+- Commit to your git repository
+
+GitLab Duo Chat can help you edit skills in `./skills/`.
 
 ## Usage
 
