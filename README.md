@@ -91,6 +91,24 @@ copilot plugin install superpowers@superpowers-marketplace
 
 ### GitLab Duo CLI
 
+**Quick Install (Any Project):**
+
+```bash
+# Unix (Linux/macOS)
+curl -sSL https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+```
+
+**What it does:**
+- Downloads skills to `./skills/` (customizable)
+- Installs MCP server to `./.gitlab-duo/`
+- Configures GitLab Duo automatically
+- Works on Windows, macOS, Linux
+
+**For local development:**
+
 From the Superpowers repository root:
 
 ```bash
