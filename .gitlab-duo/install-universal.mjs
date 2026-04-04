@@ -75,9 +75,20 @@ export async function downloadFile(url, dest) {
 // Directory Download
 export async function downloadDirectory(remotePath, localPath) {
   const url = `${GITHUB_API}/contents/${remotePath}`;
+  
+  // Add small delay to avoid rate limiting
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   const response = await fetch(url);
   
   if (!response.ok) {
+    // Check if rate limited
+    if (response.status === 403) {
+      const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
+      if (rateLimitRemaining === '0') {
+        throw new Error(`GitHub API rate limit exceeded. Please wait a few minutes and try again.`);
+      }
+    }
     throw new Error(`Failed to fetch directory ${remotePath}: ${response.status}`);
   }
   
@@ -353,7 +364,10 @@ async function install() {
   }
 }
 
-// Run installer if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run installer if executed directly (not imported as module)
+// When piped: argv[1] is undefined
+// When imported: import.meta.url contains 'node_modules' or is imported by another file
+const isDirectExecution = !process.argv[1] || !import.meta.url.includes('node_modules');
+if (isDirectExecution) {
   install();
 }
