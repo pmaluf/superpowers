@@ -1,6 +1,6 @@
 # 🚀 Superpowers for GitLab Duo - Quick Start
 
-**Status:** ✅ Phase 1 & 2 Complete
+**Status:** ✅ Phase 1, 2 & 3 Complete
 
 ---
 
@@ -16,15 +16,32 @@
 - Health check diagnostics (superpowers://diagnostics)
 - Interactive quick starts (6 workflow prompts)
 
+### Phase 3 (2026-04-03)
+- Universal installation (works in any project)
+- Cross-platform support (Windows, macOS, Linux)
+- Skills in project directory (customizable)
+
 ---
 
 ## How to Use
 
 ### First Time Setup
 
+**In any project (recommended):**
+
 ```bash
+# Unix (Linux/macOS)
+curl -sSL https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/obra/superpowers/main/.gitlab-duo/install-universal.mjs | node
+```
+
+**For local development:**
+
+```bash
+# From Superpowers repository
 bash .gitlab-duo/install.sh
-# Now includes validation and compatibility report!
 ```
 
 ### Start Using
